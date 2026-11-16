@@ -1,6 +1,7 @@
 // Jedyny moduł dotykający localStorage — do podmiany na zewnętrzne API.
 import { addDays, todayKey } from "./dates";
 import type { Status } from "./status";
+import { parseBackup } from "./backup";
 
 export interface Habit { id: string; name: string; createdAt: string; deletedAt?: string; order: number }
 export interface Data { habits: Habit[]; entries: Record<string, Record<string, Status>> } // entries[date][habitId]
@@ -15,7 +16,7 @@ function load() {
   if (loaded || typeof window === "undefined") return;
   loaded = true;
   const raw = localStorage.getItem(KEY);
-  if (raw) { try { cache = JSON.parse(raw); return; } catch { /* reseed */ } }
+  if (raw) { try { cache = parseBackup(raw); return; } catch { /* reseed */ } }
   cache = seed();
   persist();
 }
@@ -32,13 +33,24 @@ function seed(): Data {
   for (let i = 0; i < 14; i++) {
     const day = addDays(start, i);
     if (day === today) continue;
-    entries[day] = {};
-    habits.forEach((h) => { if (Math.random() > 0.1) entries[day]![h.id] = Math.random() > 0.3 ? "done" : "fail"; });
+    const values: Record<string, Status> = {};
+    entries[day] = values;
+    habits.forEach((h) => { if (Math.random() > 0.1) values[h.id] = Math.random() > 0.3 ? "done" : "fail"; });
   }
   return { habits, entries };
 }
 
 export const dataService = {
+  validateBackup(text: string) { return parseBackup(text); },
+  restoreBackup(text: string) { commit(parseBackup(text)); },
+  downloadBackup() {
+    load();
+    const blob = new Blob([JSON.stringify(cache, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url; link.download = `habit-tracker-kopia-${todayKey()}.json`; link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  },
   subscribe(l: () => void) { load(); listeners.add(l); return () => listeners.delete(l); },
   getSnapshot(): Data { load(); return cache; },
   getServerSnapshot(): Data { return EMPTY; },
@@ -54,7 +66,8 @@ export const dataService = {
     const i = active.findIndex((h) => h.id === id);
     const j = i + dir;
     if (i < 0 || j < 0 || j >= active.length) return;
-    const a = active[i]!, b = active[j]!;
+    const a = active[i], b = active[j];
+    if (!a || !b) return;
     commit({ ...cache, habits: cache.habits.map((h) => h.id === a.id ? { ...h, order: b.order } : h.id === b.id ? { ...h, order: a.order } : h) });
   },
   deleteHabit(id: string) {

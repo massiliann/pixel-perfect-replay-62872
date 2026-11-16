@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { useMemo, useState } from "react";
 import { Modal } from "./Modal";
 import type { Data } from "@/lib/dataService";
@@ -28,7 +29,7 @@ export function ExportDialog({ open, onClose, data, firstDay }: { open: boolean;
     onClose();
   };
   const opt = (v: "30" | "month", text: string) => (
-    <label className={`flex cursor-pointer items-center gap-3 rounded-xl border p-3 ${mode === v ? "border-primary bg-primary/5" : "border-border"}`}>
+    <label className={`flex cursor-pointer items-center gap-3 rounded-md border p-3 ${mode === v ? "border-primary bg-primary/5" : "border-border"}`}>
       <input type="radio" checked={mode === v} onChange={() => setMode(v)} className="accent-primary" />{text}
     </label>
   );
@@ -45,8 +46,8 @@ export function ExportDialog({ open, onClose, data, firstDay }: { open: boolean;
         )}
       </div>
       <div className="mt-5 flex justify-end gap-2">
-        <button onClick={onClose} className="rounded-lg px-4 py-2 text-muted-foreground hover:bg-muted">Anuluj</button>
-        <button onClick={go} className="rounded-lg bg-primary px-4 py-2 font-medium text-primary-foreground">Generuj PNG</button>
+        <Button variant="ghost" onClick={onClose} className="rounded-lg px-4 py-2 text-muted-foreground hover:bg-muted">Anuluj</Button>
+        <Button onClick={go} className="rounded-lg bg-primary px-4 py-2 font-medium text-primary-foreground">Generuj PNG</Button>
       </div>
     </Modal>
   );

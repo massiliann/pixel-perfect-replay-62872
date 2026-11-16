@@ -5,13 +5,13 @@ import { sortHabits } from "@/lib/dataService";
 import { rangeKeys, shortDate, todayKey } from "@/lib/dates";
 import { cellStatus } from "@/lib/status";
 import { ExportDialog } from "@/components/ExportDialog";
+import { Check, X, Download, Minus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/total")({
   head: () => ({ meta: [{ title: "Total — Habit Tracker" }, { name: "description", content: "Historia wszystkich nawyków dzień po dniu." }, { property: "og:title", content: "Total — Habit Tracker" }, { property: "og:description", content: "Historia wszystkich nawyków dzień po dniu." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Total,
 });
-
-const cellCls = { done: "bg-done", fail: "bg-fail", autofail: "bg-fail", inactive: "bg-inactive", neutral: "bg-card border border-border" } as const;
 
 function Total() {
   const data = useData();
@@ -23,26 +23,27 @@ function Total() {
   const [open, setOpen] = useState(false);
   useEffect(() => { if (ref.current) ref.current.scrollLeft = ref.current.scrollWidth; }, [days.length]);
   return (
-    <main className="animate-tab px-4 pt-6">
-      <div className="mb-5 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Total</h1>
-        <button onClick={() => setOpen(true)} className="rounded-lg bg-primary px-4 py-2 font-medium text-primary-foreground">Eksport 📸</button>
+    <main className="animate-tab total-page">
+      <div className="mb-7 flex items-center justify-between gap-3">
+        <div><p className="eyebrow mb-2">Historia / {habits.length} nawyków</p><h1 className="page-title">Total</h1></div>
+        <Button variant="outline" onClick={() => setOpen(true)}><Download className="h-4 w-4" />Eksport PNG</Button>
       </div>
-      <div className="flex overflow-hidden rounded-2xl bg-card shadow-sm">
-        <div className="w-32 shrink-0 border-r border-border">
-          <div className="h-10" />
+      <div className="history-table flex overflow-hidden">
+        <div className="history-names">
+          <div className="history-header flex items-center px-2 font-mono text-xs text-muted-foreground">NAWYK</div>
           {habits.map((h) => (
-            <div key={h.id} className={`flex h-11 items-center truncate px-3 text-sm font-medium ${h.deletedAt ? "text-muted-foreground line-through" : ""}`}>{h.name}</div>
+            <div key={h.id} title={h.name} className={`history-row flex items-center px-2 text-base leading-tight font-semibold ${h.deletedAt ? "text-muted-foreground line-through" : ""}`}><span className="line-clamp-2 break-words">{h.name}</span></div>
           ))}
         </div>
-        <div ref={ref} className="flex-1 overflow-x-auto">
-          <div className="grid auto-cols-[20%] grid-flow-col" style={{ minWidth: "100%" }}>
+        <div ref={ref} className="history-scroll min-w-0 flex-1 overflow-x-auto">
+          <div className="history-days">
             {days.map((d) => (
               <div key={d}>
-                <div className={`flex h-10 items-center justify-center text-xs font-semibold ${d === today ? "text-primary" : "text-muted-foreground"}`}>{shortDate(d)}</div>
-                {habits.map((h) => (
-                  <div key={h.id} className="h-11 p-1"><div className={`h-full w-full rounded-md ${cellCls[cellStatus(d, h.createdAt, today, data.entries[d]?.[h.id])]}`} /></div>
-                ))}
+                <div className={`history-header flex flex-col items-center justify-center font-mono text-xs ${d === today ? "text-primary" : "text-muted-foreground"}`}><span>{shortDate(d)}</span>{d === today && <span className="mt-1 text-[9px]">DZIŚ</span>}</div>
+                {habits.map((h) => {
+                  const status = cellStatus(d, h.createdAt, today, data.entries[d]?.[h.id]);
+                  return <div key={h.id} className="history-row p-1.5"><div data-status={status} title={`${h.name} · ${d} · ${status}`} className="history-cell flex h-full w-full items-center justify-center rounded-sm">{status === "done" ? <Check className="h-4 w-4" /> : status === "fail" || status === "autofail" ? <X className="h-4 w-4" /> : status === "inactive" ? <Minus className="h-3 w-3 opacity-40" /> : null}</div></div>;
+                })}
               </div>
             ))}
           </div>

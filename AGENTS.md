@@ -29,3 +29,7 @@ use the editor.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
 - All habit data reads/writes go through src/lib/dataService.ts (localStorage today) so it can be swapped for an external API.
+- Validate portable JSON backups with the shared schema before replacing device data, so invalid imports cannot destroy saved history.
+- Keep the shared shell full-width and constrain only Today/Settings locally, so history uses the available viewport.
+- Prerender all content routes and deploy only dist/client to GitHub Pages; set GITHUB_PAGES_BASE for repository subpaths so no server secrets or runtime are needed.
+- Use manifest-only PWA support until offline behavior is explicitly requested, so previews cannot acquire stale service-worker caches.

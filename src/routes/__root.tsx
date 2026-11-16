@@ -9,6 +9,7 @@ import {
   type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { Activity, HardDrive } from "lucide-react";
 
 import { BottomNav } from "../components/BottomNav";
 import appCss from "../styles.css?url";
@@ -82,6 +83,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "theme-color", content: "#101316" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
       { title: "Habit Tracker" },
       { name: "description", content: "Codzienne śledzenie nawyków" },
       { name: "author", content: "Lovable" },
@@ -97,6 +100,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "manifest", href: `${import.meta.env.BASE_URL}manifest.webmanifest` },
+      { rel: "apple-touch-icon", href: `${import.meta.env.BASE_URL}icons/icon-192.png` },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" },
     ],
   }),
   shellComponent: RootShell,
@@ -125,7 +133,8 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <div className="mx-auto min-h-screen max-w-lg pb-24"><Outlet /></div>
+      <header className="app-header"><div className="flex items-center gap-3"><Activity className="h-5 w-5 text-primary" /><span className="brand-label">HABIT TRACKER</span></div><HardDrive aria-label="Zapis na urządzeniu" className="h-4 w-4 text-accent" /></header>
+      <div className="app-content"><Outlet /></div>
       <BottomNav />
     </QueryClientProvider>
   );
