@@ -28,3 +28,4 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+- All habit data reads/writes go through src/lib/dataService.ts (localStorage today) so it can be swapped for an external API.

@@ -10,33 +10,53 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TotalRouteImport } from './routes/total'
+import { Route as UstawieniaRouteImport } from './routes/ustawienia'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TotalRoute = TotalRouteImport.update({
+  id: '/total',
+  path: '/total',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UstawieniaRoute = UstawieniaRouteImport.update({
+  id: '/ustawienia',
+  path: '/ustawienia',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/total': typeof TotalRoute
+  '/ustawienia': typeof UstawieniaRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/total': typeof TotalRoute
+  '/ustawienia': typeof UstawieniaRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/total': typeof TotalRoute
+  '/ustawienia': typeof UstawieniaRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/total' | '/ustawienia'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/total' | '/ustawienia'
+  id: '__root__' | '/' | '/total' | '/ustawienia'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  TotalRoute: typeof TotalRoute
+  UstawieniaRoute: typeof UstawieniaRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +68,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/total': {
+      id: '/total'
+      path: '/total'
+      fullPath: '/total'
+      preLoaderRoute: typeof TotalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ustawienia': {
+      id: '/ustawienia'
+      path: '/ustawienia'
+      fullPath: '/ustawienia'
+      preLoaderRoute: typeof UstawieniaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  TotalRoute: TotalRoute,
+  UstawieniaRoute: UstawieniaRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
