@@ -11,15 +11,15 @@ export function BackupControls() {
     try {
       const text = await file.text();
       dataService.validateBackup(text);
-      if (!confirm("Zastąpić dane na tym urządzeniu danymi z kopii?")) return;
+      if (!confirm("Zastąpić dane w usłudze zapisu danymi z kopii?")) return;
       dataService.restoreBackup(text);
-      setMessage("Przywrócono dane z kopii.");
+      setMessage("Wysłano kopię do zapisania.");
     } catch { setMessage("Nie udało się odczytać kopii. Dotychczasowe dane pozostają bez zmian."); }
     finally { if (input.current) input.current.value = ""; }
   };
   return <section className="settings-section">
     <h2 className="section-heading"><HardDrive className="h-4 w-4 text-primary" />Dane i kopie zapasowe</h2>
-    <p className="mb-4 text-sm text-muted-foreground">Zapis na tym urządzeniu</p>
+    <p className="mb-4 text-sm text-muted-foreground">Zapis w usłudze zapisu</p>
     <div className="flex flex-wrap gap-3">
       <Button variant="outline" onClick={() => { dataService.downloadBackup(); setMessage("Pobrano kopię danych."); }}><Download className="h-4 w-4" />Pobierz kopię</Button>
       <Button variant="outline" onClick={() => input.current?.click()}><Upload className="h-4 w-4" />Przywróć kopię</Button>

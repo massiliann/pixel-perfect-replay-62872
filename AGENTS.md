@@ -28,7 +28,9 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
-- All habit data reads/writes go through src/lib/dataService.ts (localStorage today) so it can be swapped for an external API.
+- All habit reads/writes go through src/lib/dataService.ts with a memory-only cache and external API calls, so device storage is never the source of habit history.
+- Serialize optimistic writes, roll back to the last confirmed snapshot on failure and send null for status deletion, so failed requests never silently masquerade as saved history.
+- Do not bundle shared read/write keys into VITE_* config; the external service must protect access independently because GitHub Pages client code is public.
 - Validate portable JSON backups with the shared schema before replacing device data, so invalid imports cannot destroy saved history.
 - Keep the shared shell full-width and constrain only Today/Settings locally, so history uses the available viewport.
 - Prerender all content routes and deploy only dist/client to GitHub Pages; set GITHUB_PAGES_BASE for repository subpaths so no server secrets or runtime are needed.

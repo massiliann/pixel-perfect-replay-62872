@@ -2,11 +2,13 @@
 
 ## Personal PWA / GitHub Pages
 
-Habit data stays in this browser on this device. Settings provides a validated JSON backup and restore; PNG export is a visual report, not a restorable backup. Clearing browser/site data removes local history. Moving to another domain (including from preview to GitHub Pages) requires downloading and restoring a JSON backup. There is no automatic cross-device sync.
+Habit data is read from and written to an external API. Browser cache is memory-only: no localStorage fallback or demo seeding. Until the API is configured, an unavailable-data screen is shown. Existing local history is not uploaded or deleted automatically. JSON backup restore writes to the external service.
 
-Google Sheets is not used by the app. A private sheet would need an authenticated server or per-user Google OAuth; embedding workspace credentials in GitHub Pages would expose private data. The connected Google Sheets service is unused and no sheet contents were changed.
+The supplied archive contains frontend files only, not the deployed Google Apps Script or secure authorization. Google Sheets is not yet verified as the active store. Configure an HTTPS VITE_API_URL serving validated `{ habits, entries }` on GET and JSON acknowledgements for POST actions addHabit, renameHabit, moveHabit, deleteHabit, setStatuses and saveAll. Status deletion is sent as null. The service must handle authorization, credentialed CORS for the Pages origin, durable writes and cross-device concurrency.
 
-For deployment: connect this repository in GitHub, select Settings → Pages → Source: GitHub Actions, then run the **Deploy Habit Tracker to GitHub Pages** workflow. It builds/prerenders all three routes and publishes only `dist/client`. The workflow detects repository subpaths. No server environment secrets are required. Actual GitHub Pages deployment must be verified after running the workflow.
+Leave VITE_API_KEY empty: VITE values are public even when supplied through GitHub Secrets. The app rejects a populated shared key. Private data needs session-protected service access or per-user authorization, not a key shipped in the app. The platform controls .gitignore; add .env and .env.* exclusions with an exception for .env.example in your GitHub repository before creating any environment file. Do not store credentials in committed files.
+
+For deployment: select Settings → Pages → Source: GitHub Actions and set the public API address in GitHub Secret VITE_API_URL. Deployment runs on pushes to main or manually. Only dist/client is published. Never inject a private VITE_API_KEY. GitHub Pages deployment and real remote save/read remain unverified until the external service is available.
 
 The manifest and app icons support home-screen installation. No service worker or offline app-shell caching is included.
 
