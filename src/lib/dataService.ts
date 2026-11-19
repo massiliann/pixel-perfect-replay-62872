@@ -3,7 +3,7 @@ import { addDays, todayKey } from "./dates";
 import type { Status } from "./status";
 import { parseBackup } from "./backup";
 
-export interface Habit { id: string; name: string; createdAt: string; deletedAt?: string; order: number }
+export interface Habit { id: string; name: string; createdAt: string; deletedAt?: string | undefined; order: number }
 export interface Data { habits: Habit[]; entries: Record<string, Record<string, Status>> } // entries[date][habitId]
 
 const KEY = "habit-tracker-v1";
