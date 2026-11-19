@@ -9,11 +9,8 @@ import {
   type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
-import { Activity, Loader2, WifiOff } from "lucide-react";
+import { Activity, HardDrive } from "lucide-react";
 
-import { useDataStatus } from "@/hooks/useData";
-import { dataService } from "@/lib/dataService";
-import { Button } from "@/components/ui/button";
 import { BottomNav } from "../components/BottomNav";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -132,14 +129,13 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const { loading, error, saving } = useDataStatus();
 
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <header className="app-header"><div className="flex items-center gap-3"><Activity className="h-5 w-5 text-primary" /><span className="brand-label">HABIT TRACKER</span></div>{saving && <span role="status" className="text-sm text-muted-foreground">Zapisywanie…</span>}</header>
-      <div className="app-content">{loading ? <div role="status" className="flex min-h-[60dvh] flex-col items-center justify-center gap-4"><Loader2 className="h-6 w-6 animate-spin text-primary" /><p>Ładowanie danych…</p></div> : error ? <div className="flex min-h-[60dvh] flex-col items-center justify-center gap-4 px-6 text-center"><WifiOff className="h-8 w-8 text-fail" /><h1 className="text-xl font-semibold">Dane są niedostępne</h1><p role="alert" className="max-w-md text-muted-foreground">{error}</p><Button onClick={() => void dataService.reload()}>Spróbuj ponownie</Button></div> : <Outlet />}</div>
-      {!loading && !error && <BottomNav />}
+      <header className="app-header"><div className="flex items-center gap-3"><Activity className="h-5 w-5 text-primary" /><span className="brand-label">HABIT TRACKER</span></div><HardDrive aria-label="Zapis na urządzeniu" className="h-4 w-4 text-accent" /></header>
+      <div className="app-content"><Outlet /></div>
+      <BottomNav />
     </QueryClientProvider>
   );
 }
