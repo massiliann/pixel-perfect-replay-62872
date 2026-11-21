@@ -9,9 +9,11 @@ import {
   type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
-import { Activity, HardDrive } from "lucide-react";
+import { Activity, HardDrive, Loader2, WifiOff } from "lucide-react";
 
 import { BottomNav } from "../components/BottomNav";
+import { useDataStatus } from "../hooks/useData";
+import { dataService } from "../lib/dataService";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
@@ -20,7 +22,9 @@ function NotFoundComponent() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
+        <h2 className="mt-4 text-xl font-semibold text-foreground">
+          Page not found
+        </h2>
         <p className="mt-2 text-sm text-muted-foreground">
           The page you're looking for doesn't exist or has been moved.
         </p>
@@ -51,7 +55,8 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
           This page didn't load
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
+          Something went wrong on our end. You can try refreshing or head back
+          home.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
@@ -75,43 +80,89 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
   );
 }
 
-export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
-    // Replace these placeholders with the app's name and description when first building the app.
-    // Each content route, / included, must still set its own head(). Never add og:image or
-    // twitter:image here: every page without its own would inherit the root's preview image.
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { name: "theme-color", content: "#101316" },
-      { name: "apple-mobile-web-app-capable", content: "yes" },
-      { title: "Habit Tracker" },
-      { name: "description", content: "Codzienne śledzenie nawyków" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Habit Tracker" },
-      { property: "og:description", content: "Codzienne śledzenie nawyków" },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
-    ],
-    links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
-      { rel: "manifest", href: `${import.meta.env.BASE_URL}manifest.webmanifest` },
-      { rel: "apple-touch-icon", href: `${import.meta.env.BASE_URL}icons/icon-192.png` },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" },
-    ],
-  }),
-  shellComponent: RootShell,
-  component: RootComponent,
-  notFoundComponent: NotFoundComponent,
-  errorComponent: ErrorComponent,
-});
+/* ---------- Loading / error screen ---------- */
+function LoadingScreen() {
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background">
+      <Activity className="h-10 w-10 text-primary" />
+      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      <p className="text-sm text-muted-foreground">Ładowanie danych…</p>
+    </div>
+  );
+}
+
+function DataErrorScreen({ message }: { message: string }) {
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background px-6">
+      <WifiOff className="h-10 w-10 text-fail" />
+      <h1 className="text-lg font-semibold text-foreground">
+        Nie udało się pobrać danych
+      </h1>
+      <p className="max-w-sm text-center text-sm text-muted-foreground">
+        {message}
+      </p>
+      <button
+        onClick={() => dataService.reload()}
+        className="mt-2 inline-flex items-center justify-center rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+      >
+        Spróbuj ponownie
+      </button>
+    </div>
+  );
+}
+
+export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
+  {
+    head: () => ({
+      meta: [
+        { charSet: "utf-8" },
+        { name: "viewport", content: "width=device-width, initial-scale=1" },
+        { name: "theme-color", content: "#101316" },
+        { name: "apple-mobile-web-app-capable", content: "yes" },
+        { title: "Habit Tracker" },
+        { name: "description", content: "Codzienne śledzenie nawyków" },
+        { name: "author", content: "Lovable" },
+        { property: "og:title", content: "Habit Tracker" },
+        {
+          property: "og:description",
+          content: "Codzienne śledzenie nawyków",
+        },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:site", content: "@Lovable" },
+      ],
+      links: [
+        {
+          rel: "stylesheet",
+          href: appCss,
+        },
+        { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+        {
+          rel: "manifest",
+          href: `${import.meta.env.BASE_URL}manifest.webmanifest`,
+        },
+        {
+          rel: "apple-touch-icon",
+          href: `${import.meta.env.BASE_URL}icons/icon-192.png`,
+        },
+        { rel: "preconnect", href: "https://fonts.googleapis.com" },
+        {
+          rel: "preconnect",
+          href: "https://fonts.gstatic.com",
+          crossOrigin: "anonymous",
+        },
+        {
+          rel: "stylesheet",
+          href: "https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap",
+        },
+      ],
+    }),
+    shellComponent: RootShell,
+    component: RootComponent,
+    notFoundComponent: NotFoundComponent,
+    errorComponent: ErrorComponent,
+  },
+);
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
@@ -129,12 +180,22 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const { loading, error } = useDataStatus();
+
+  if (loading) return <LoadingScreen />;
+  if (error) return <DataErrorScreen message={error} />;
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <header className="app-header"><div className="flex items-center gap-3"><Activity className="h-5 w-5 text-primary" /><span className="brand-label">HABIT TRACKER</span></div><HardDrive aria-label="Zapis na urządzeniu" className="h-4 w-4 text-accent" /></header>
-      <div className="app-content"><Outlet /></div>
+      <header className="app-header">
+        <div className="flex items-center gap-3">
+          <Activity className="h-5 w-5 text-primary" />
+          <span className="brand-label">HABIT TRACKER</span>
+        </div>
+      </header>
+      <div className="app-content">
+        <Outlet />
+      </div>
       <BottomNav />
     </QueryClientProvider>
   );
