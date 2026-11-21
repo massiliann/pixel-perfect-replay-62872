@@ -1,6 +1,8 @@
 name: Deploy Habit Tracker to GitHub Pages
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
 permissions:
   contents: read
   pages: write
@@ -28,6 +30,9 @@ jobs:
             echo "GITHUB_PAGES_BASE=/$REPO/" >> "$GITHUB_ENV"
           fi
       - run: bun run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_API_KEY: ${{ secrets.VITE_API_KEY }}
       - name: Verify static pages
         run: |
           test -f dist/client/index.html
